@@ -19,13 +19,13 @@ Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio 
 ### Ambiente
 
 - [x] Creare la struttura delle cartelle
-- [ ] Inizializzare Git (`git init`) e fare il primo commit dello scheletro
+- [x] Inizializzare Git (`git init`) e fare il primo commit dello scheletro
 - [ ] Creare il repository su GitHub e collegarlo come remote
-- [ ] Installare CMake e verificare con `cmake --version`
-- [ ] Installare Visual Studio 2022 Build Tools (carico "Sviluppo di applicazioni desktop con C++")
-- [ ] Installare NASM e verificare con `nasm -v`
-- [ ] Installare Python 3.12 e creare un ambiente virtuale `.venv`
-- [ ] Configurare l'editor: estensioni C/C++, CMake Tools, NASM, Python
+- [x] Installare CMake e verificare con `cmake --version`
+- [x] Installare Visual Studio 2022 Build Tools (carico "Sviluppo di applicazioni desktop con C++")
+- [x] Installare NASM e verificare con `nasm -v`
+- [x] Installare Python 3.12 e creare un ambiente virtuale `.venv`
+- [x] Configurare l'editor: estensioni C/C++, CMake Tools, NASM, Python
 
 ### Studio AGC
 
