@@ -20,36 +20,17 @@ Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio 
 
 - [x] Creare la struttura delle cartelle
 - [x] Inizializzare Git (`git init`) e fare il primo commit dello scheletro
-- [ ] Creare il repository su GitHub e collegarlo come remote
+- [x] Creare il repository su GitHub e collegarlo come remote
 - [x] Installare CMake e verificare con `cmake --version`
 - [x] Installare Visual Studio 2022 Build Tools (carico "Sviluppo di applicazioni desktop con C++")
 - [x] Installare NASM e verificare con `nasm -v`
 - [x] Installare Python 3.12 e creare un ambiente virtuale `.venv`
 - [x] Configurare l'editor: estensioni C/C++, CMake Tools, NASM, Python
 
-### Studio AGC
-
-Leggere i file nel repository Apollo-11 e scrivere una nota per ciascuno in `docs/historical-notes/`:
-
-- [ ] `Luminary099/MAIN.agc`: come è composto il programma
-- [ ] `EXECUTIVE.agc`: job, priorità, core set, allarme `1201`
-- [ ] `WAITLIST.agc`: task temporizzati
-- [ ] `FRESH_START_AND_RESTART.agc` e `RESTARTS_ROUTINE.agc`: come riparte il software
-- [ ] `ALARM_AND_ABORT.agc`: allarmi e abort
-- [ ] `THE_LUNAR_LANDING.agc`: struttura dei programmi di allunaggio P63–P66
-
-### Documentazione
-
-- [ ] `docs/architecture/overview.md`: diagramma degli strati e del flusso dei dati
-- [ ] `docs/adr/0001-flight-core-in-c17.md`: perché C17 per il Flight Core
-- [ ] `docs/adr/0002-ai-advisory-only.md`: perché l'IA non comanda gli attuatori
-- [ ] `docs/historical-notes/agc-vs-eagle64.md`: tabella "principio AGC → come lo realizza Eagle-64"
-
 ### Definition of Done (Sprint 0)
 
 - Tutti gli strumenti rispondono da terminale.
 - Primo commit pubblicato su GitHub.
-- Note storiche e due ADR scritti.
 
 ## Sprint 1: Fondamenta low-level
 
