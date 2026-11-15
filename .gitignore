@@ -1,0 +1,32 @@
+# Build
+build/
+out/
+cmake-build-*/
+CMakeUserPresets.json
+
+# Binari e oggetti
+*.obj
+*.o
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+
+# Editor
+.vs/
+.vscode/*
+!.vscode/extensions.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Dati e modelli generati
+ai/datasets/*
+!ai/datasets/.gitkeep
+*.onnx
+runs/
+mlruns/
