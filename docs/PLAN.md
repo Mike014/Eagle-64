@@ -55,8 +55,8 @@ Leggere i file nel repository Apollo-11 e scrivere una nota per ciascuno in `doc
 
 **Obiettivo:** la prima funzione NASM chiamata da C, compilata con CMake e testata.
 
-- [ ] `CMakeLists.txt` radice con C17, C++20 e supporto NASM
-- [ ] Preset di build Debug e Release
+- [x] `CMakeLists.txt` radice con C17, C++20 e supporto NASM
+- [x] Preset di build Debug e Release
 - [ ] Framework di test (per esempio CTest con una libreria leggera)
 - [ ] Definire il formato fixed-point (per esempio Q16.16) in un ADR
 - [ ] Implementazione di riferimento in C: somma, moltiplicazione, divisione con saturazione
