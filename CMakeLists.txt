@@ -17,4 +17,4 @@ if(MSVC)
                         $<$<COMPILE_LANGUAGE:C,CXX>:/WX>)
 endif()
 
-add_subdirectory(asm)
+add_subdirectory(core)

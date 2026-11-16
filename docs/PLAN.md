@@ -4,19 +4,44 @@ Il progetto è diviso in sprint. Ogni sprint ha un obiettivo, un backlog di atti
 
 Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio uno sprint piccolo e chiuso che uno grande lasciato a metà.
 
+## Ambito
+
+Il **nucleo** (Sprint 1–3) è il progetto: un lander 2D che atterra, sopravvive a sovraccarichi e guasti come l'AGC di Apollo 11, sotto la sorveglianza di un Safety Monitor. Regge da solo come portfolio.
+
+Le **estensioni** (Sprint 4–6) aggiungono IA e sicurezza, in forma ridotta e solo dopo che il nucleo è chiuso.
+
+Fuori ambito, salvo ripensamenti a nucleo finito: dinamica 6-DOF, GNN, MPC, Control Barrier Functions, RL, ensemble e conformal prediction, dataset esterni, attacchi oltre il replay.
+
 ## Regole di lavoro
 
-- Un ramo Git per sprint o per funzionalità (`sprint-1/fixed-point`), poi merge su `main`.
+- Un ramo Git per sprint o per funzionalità (`sprint-1/tests`), poi PR e merge su `main`. Dopo il merge il ramo si elimina e si riparte da `main` aggiornato.
 - Commit piccoli e descrittivi.
-- Ogni decisione tecnica importante va in un ADR in `docs/adr/` (una pagina: contesto, decisione, conseguenze).
+- Una cartella nasce insieme al suo primo file: niente cartelle vuote in anticipo.
+- Le decisioni tecniche si documentano con un commento in testa al codice che le implementa.
 - Ogni funzione ha un test prima di essere considerata finita.
 - A fine sprint: breve retrospettiva in fondo a questo file (cosa è andato bene, cosa cambiare).
 
-## Sprint 0: Setup e studio
+## Struttura
 
-**Obiettivo:** ambiente pronto e principi dell'AGC compresi, senza scrivere codice di prodotto.
+```text
+Eagle-64/
+├── core/        C17 + NASM: chi ha l'autorità sulla missione
+│   ├── fixed/     fixed-point Q16.16 (C di riferimento + NASM)    Sprint 1
+│   ├── flight/    scheduler, navigazione, guida, controllo, ...   Sprint 2-3
+│   └── safety/    Safety Monitor                                  Sprint 3
+├── sim/         C++20: fisica, sensori, attuatori, DSKY           Sprint 2
+├── ai/          Python + inferenza ONNX in shadow mode            Sprint 4-5
+├── cyber/       ground station, protocollo, attacco replay        Sprint 6
+├── tests/       test unitari, differenziali, di scenario          Sprint 1
+├── scenarios/   scenari di missione versionati                    Sprint 3
+└── docs/        piano
+```
 
-### Ambiente
+Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quello sprint.
+
+## Sprint 0: Setup
+
+**Obiettivo:** ambiente pronto, senza scrivere codice di prodotto.
 
 - [x] Creare la struttura delle cartelle
 - [x] Inizializzare Git (`git init`) e fare il primo commit dello scheletro
@@ -26,6 +51,7 @@ Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio 
 - [x] Installare NASM e verificare con `nasm -v`
 - [x] Installare Python 3.12 e creare un ambiente virtuale `.venv`
 - [x] Configurare l'editor: estensioni C/C++, CMake Tools, NASM, Python
+- [x] Ristrutturare il repository in moduli e ridurre l'ambito
 
 ### Definition of Done (Sprint 0)
 
@@ -38,23 +64,24 @@ Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio 
 
 - [x] `CMakeLists.txt` radice con C17, C++20 e supporto NASM
 - [x] Preset di build Debug e Release
-- [ ] Framework di test (per esempio CTest con una libreria leggera)
-- [ ] Definire il formato fixed-point (per esempio Q16.16) in un ADR
-- [ ] Implementazione di riferimento in C: somma, moltiplicazione, divisione con saturazione
+- [x] Formato fixed-point Q16.16 documentato in `core/fixed/fixed_point.h`
+- [ ] Framework di test: CTest con un mini-framework in C, senza dipendenze
+- [ ] Implementazione di riferimento in C: somma, sottrazione, moltiplicazione, divisione con saturazione, con test
 - [ ] Stesse funzioni in NASM secondo la Windows x64 ABI
 - [ ] Test differenziali C vs NASM con golden vector e casi limite (overflow, divisione per zero, valori minimi e massimi)
-- [ ] Primo benchmark C vs NASM in `benchmarks/`
+- [ ] Benchmark C vs NASM (Release)
 - [ ] CI con GitHub Actions su Windows: build e test a ogni push
 
 ### Definition of Done (Sprint 1)
 
 - `cmake --build` e `ctest` passano in locale e in CI.
-- Risultati del benchmark documentati, anche se il C risulta più veloce.
+- Risultati del benchmark annotati, anche se il C risulta più veloce.
 
 ## Sprint 2: MVP deterministico
 
 **Obiettivo:** un atterraggio nominale simulato in 2D, riproducibile.
 
+- [ ] Decidere dove si usa `q32` e dove `double` (fisica in `double`; da valutare per il Flight Core)
 - [ ] Modello fisico 2D: gravità lunare, massa, spinta, consumo di propellente
 - [ ] Integratore numerico a passo fisso
 - [ ] Sensori ideali (senza rumore) per iniziare
@@ -75,7 +102,7 @@ Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio 
 **Obiettivo:** il sistema sopravvive a guasti e sovraccarichi.
 
 - [ ] Rumore, bias e deriva dei sensori
-- [ ] Filtro di Kalman esteso (EKF) per la stima dello stato
+- [ ] Filtro di Kalman (EKF) per la stima dello stato
 - [ ] Watchdog e deadline dei task
 - [ ] Overload shedding: scarto dei task non critici
 - [ ] Allarmi in stile `1201/1202`
@@ -83,82 +110,61 @@ Durata indicativa: 1–2 settimane per sprint, da adattare al tuo tempo. Meglio 
 - [ ] Modalità `ABORT` e `SAFE`
 - [ ] Fault injection configurabile da file di scenario
 - [ ] Safety Monitor con limiti di spinta, assetto, corridoio e propellente
+- [ ] Checksum in NASM per lo stato salvato nei checkpoint
 
 ### Definition of Done (Sprint 3)
 
 - Demo: sovraccarico iniettato, allarme, task scartati, atterraggio completato.
 - Ogni guasto di scenario ha un test automatico.
 
-## Sprint 4: AI MVP
+**Qui il nucleo è completo.** Prima di proseguire: README con risultati e limiti.
 
-**Obiettivo:** primo rilevamento anomalie misurato su dati sintetici.
+## Sprint 4: Estensione IA, rilevamento anomalie
 
-- [ ] Generatore di campagne Monte Carlo con guasti etichettati
-- [ ] Formato del dataset versionato con manifest (seed, commit, scenario)
-- [ ] Split per scenario: train, validation, calibration, test
-- [ ] Baseline deterministiche: residui del Kalman, EWMA, CUSUM
-- [ ] PCA (SPE e T²) e Isolation Forest
-- [ ] Random Forest per classificare i guasti noti
-- [ ] Metriche per evento: precision, recall, F0.5, falsi allarmi per ora, latenza
-- [ ] Notebook o report di valutazione in `ai/`
+**Obiettivo:** rilevare una deriva del radar su dati sintetici, misurando il risultato.
+
+- [ ] Generatore di missioni Monte Carlo con guasti etichettati (seed, commit, scenario)
+- [ ] Split per scenario: train, validation, test
+- [ ] Baseline deterministiche: residui del Kalman e CUSUM
+- [ ] Un modello ML piccolo (Isolation Forest o una TCN compatta)
+- [ ] Metriche per evento: precision, recall, falsi allarmi, latenza di rilevamento
 
 ### Definition of Done (Sprint 4)
 
-- Tabella di confronto tra baseline deterministiche e modelli ML.
-- Nessun dato di test usato per scegliere soglie o iperparametri.
+- Tabella di confronto baseline vs modello, con soglie scelte senza usare il test set.
 
-## Sprint 5: IA temporale e ONNX
+## Sprint 5: Estensione IA, shadow mode
 
-**Obiettivo:** un modello temporale eseguito in C++ in shadow mode.
+**Obiettivo:** il modello gira in C++ accanto al Flight Core, senza autorità.
 
-- [ ] TCN causale compatta e baseline LSTM
-- [ ] Ensemble di 3 modelli
-- [ ] Calibrazione e split conformal con astensione (`ADVICE`, `UNCERTAIN`, `NO_ADVICE`)
-- [ ] Rilevamento input fuori distribuzione
 - [ ] Export ONNX e test di parità Python vs ONNX Runtime
-- [ ] Integrazione in `inference/` con controllo di hash, schema e deadline
+- [ ] Inferenza in C++ con controllo di schema, NaN e deadline
 - [ ] Il Safety Monitor riceve l'advisory e decide se ignorarlo o segnalarlo
-- [ ] Model card in `docs/model-cards/`
 
 ### Definition of Done (Sprint 5)
 
 - Spegnere o corrompere il modello non cambia le decisioni del Flight Core.
-- Il TCN batte le baseline su metriche fissate prima dei test, oppure lo si documenta onestamente.
 
-## Sprint 6: Cyber Range
+## Sprint 6: Estensione cyber, comandi autenticati
 
-**Obiettivo:** ground station e attacchi simulati, con difese e rilevamento.
+**Obiettivo:** una ground station che invia comandi autenticati e un attacco replay rigettato.
 
-- [ ] Threat model in `docs/threat-model/`
 - [ ] Ground station e protocollo comandi/telemetria
-- [ ] Autenticazione dei messaggi con libreria crittografica standard, sequence number e finestra anti-replay
-- [ ] Attacchi: replay, spoofing, command injection, DoS, false-data injection, manipolazione del tempo
-- [ ] Rilevamento: regole deterministiche più modello IA
-- [ ] Fuzzing del parser del protocollo
-- [ ] Report di sicurezza
+- [ ] Autenticazione con libreria crittografica standard, sequence number e finestra anti-replay
+- [ ] Attacco replay simulato e rigettato in modo deterministico
 
 ### Definition of Done (Sprint 6)
 
-- Ogni attacco della threat matrix ha uno scenario riproducibile e un risultato documentato.
+- Scenario riproducibile: replay inviato, rigettato, evento registrato.
 
-## Sprint 7: Ricerca avanzata e demo
+## Demo finale
 
-**Obiettivo:** estensioni sperimentali e demo finale per il portfolio.
-
-- [ ] Dinamica 6-DOF
-- [ ] Almeno un modulo sperimentale (GNN, residual learning, MPC assistito o Control Barrier Functions)
-- [ ] Demo finale registrata: deriva radar, attacco replay, sovraccarico, atterraggio o abort sicuro, report finale
-- [ ] Assurance case in `docs/assurance-case/`
-- [ ] README finale con GIF o video, risultati e limiti
-
-### Definition of Done (Sprint 7)
-
-- Demo riproducibile da seed e manifest.
-- Limiti del progetto dichiarati esplicitamente.
+- [ ] Demo riproducibile da seed: discesa, sovraccarico con allarme `1201`, deriva radar rilevata, replay rigettato, atterraggio o abort sicuro
+- [ ] README finale con GIF o video, risultati e limiti dichiarati
 
 ## Retrospettive
 
 ### Sprint 0
 
 - Cosa è andato bene:
-- Cosa cambiare:
+- Cosa cambiare: l'ambito iniziale era troppo ampio; ridotto a un nucleo più due estensioni.
