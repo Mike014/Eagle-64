@@ -12,6 +12,13 @@ Le **estensioni** (Sprint 4–6) aggiungono IA e sicurezza, in forma ridotta e s
 
 Fuori ambito, salvo ripensamenti a nucleo finito: dinamica 6-DOF, GNN, MPC, Control Barrier Functions, RL, ensemble e conformal prediction, dataset esterni, attacchi oltre il replay.
 
+## Decisioni di base
+
+- **Numeri:** Flight Core e simulatore usano `double`. Il replay identico a parità di seed vale a parità di eseguibile. Il fixed-point Q16.16 (`core/fixed/`) è un esercizio C/NASM chiuso nello Sprint 1, non la base della guida: il suo range (±32768) è troppo stretto per velocità al quadrato e filtri.
+- **Tempo:** il tempo è simulato, non reale. Un tick vale 10 ms. Ogni task dichiara un costo in unità di budget e ogni tick ha un budget fisso. Il sovraccarico (`1201/1202`) si ottiene superando il budget, quindi è deterministico e riproducibile anche su un PC veloce.
+- **Dinamica:** si parte dalla sola discesa verticale (1D). Moto orizzontale e assetto arrivano nello Sprint 3.
+- **Limiti di touchdown:** velocità verticale ≤ 1,0 m/s (obiettivo), ≤ 3,0 m/s (limite strutturale, come il modulo lunare Apollo). Dallo Sprint 3: velocità orizzontale ≤ 1,0 m/s, assetto entro ±5° dalla verticale.
+
 ## Regole di lavoro
 
 - Un ramo Git per sprint o per funzionalità (`sprint-1/tests`), poi PR e merge su `main`. Dopo il merge il ramo si elimina e si riparte da `main` aggiornato.
@@ -27,9 +34,9 @@ Fuori ambito, salvo ripensamenti a nucleo finito: dinamica 6-DOF, GNN, MPC, Cont
 Eagle-64/
 ├── core/        C17 + NASM: chi ha l'autorità sulla missione
 │   ├── fixed/     fixed-point Q16.16 (C di riferimento + NASM)    Sprint 1
-│   ├── flight/    scheduler, navigazione, guida, controllo, ...   Sprint 2-3
+│   ├── flight/    scheduler, navigazione, guida, controllo, ...   Sprint 2b-3
 │   └── safety/    Safety Monitor                                  Sprint 3
-├── sim/         C++20: fisica, sensori, attuatori, DSKY           Sprint 2
+├── sim/         C++20: fisica, sensori, attuatori, DSKY           Sprint 2a
 ├── ai/          Python + inferenza ONNX in shadow mode            Sprint 4-5
 ├── cyber/       ground station, protocollo, attacco replay        Sprint 6
 ├── tests/       test unitari, differenziali, di scenario          Sprint 1
@@ -77,32 +84,44 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 - `cmake --build` e `ctest` passano in locale e in CI.
 - Risultati del benchmark annotati, anche se il C risulta più veloce.
 
-## Sprint 2: MVP deterministico
+## Sprint 2a: Il lander cade
 
-**Obiettivo:** un atterraggio nominale simulato in 2D, riproducibile.
+**Obiettivo:** una discesa verticale simulata e registrata. Il lander non ha ancora una guida, quindi si schianta.
 
-- [ ] Decidere dove si usa `q32` e dove `double` (fisica in `double`; da valutare per il Flight Core)
-- [ ] Modello fisico 2D: gravità lunare, massa, spinta, consumo di propellente
-- [ ] Integratore numerico a passo fisso
-- [ ] Sensori ideali (senza rumore) per iniziare
-- [ ] Scheduler a priorità con task periodici
-- [ ] Macchina a stati: `BOOT`, `DESCENT`, `APPROACH`, `LANDING`, `SAFE`
-- [ ] Guida a profilo di discesa e controllore PID
-- [ ] DSKY testuale nel terminale
-- [ ] Log della telemetria in CSV
+- [ ] Modello fisico 1D: gravità lunare, massa, spinta, consumo di propellente (`sim/`)
+- [ ] Integratore numerico a passo fisso (tick da 10 ms)
+- [ ] Spinta costante da file di configurazione
+- [ ] Log della telemetria in CSV (tempo, quota, velocità, massa, spinta)
 - [ ] Seed e configurazione per replay identici
 
-### Definition of Done (Sprint 2)
+### Definition of Done (Sprint 2a)
 
-- Il lander atterra entro i limiti di velocità definiti.
-- Due esecuzioni con lo stesso seed producono telemetria identica.
+- Con spinta zero il lander arriva al suolo nel tempo previsto dalla caduta libera (verifica con la formula, in un test).
+- Due esecuzioni con lo stesso seed producono un CSV identico byte per byte.
+
+## Sprint 2b: Il lander atterra
+
+**Obiettivo:** il Flight Core in C guida il lander del simulatore fino a un atterraggio morbido.
+
+- [ ] Interfaccia C tra simulatore (C++) e Flight Core (C): struttura dei sensori in ingresso, comando di spinta in uscita
+- [ ] Sensori ideali (senza rumore)
+- [ ] Scheduler a priorità con task periodici e budget per tick (vedi "Decisioni di base")
+- [ ] Macchina a stati: `BOOT`, `DESCENT`, `APPROACH`, `LANDING`, `SAFE`
+- [ ] Guida a profilo di discesa e controllore PID sulla velocità verticale
+- [ ] DSKY testuale nel terminale
+
+### Definition of Done (Sprint 2b)
+
+- Il lander atterra con velocità verticale ≤ 1,0 m/s.
+- Telemetria identica tra due esecuzioni con lo stesso seed.
 
 ## Sprint 3: Core fault-tolerant
 
 **Obiettivo:** il sistema sopravvive a guasti e sovraccarichi.
 
+- [ ] Dinamica 2D: moto orizzontale e angolo di assetto
 - [ ] Rumore, bias e deriva dei sensori
-- [ ] Filtro di Kalman (EKF) per la stima dello stato
+- [ ] Filtro di Kalman lineare per la stima dello stato
 - [ ] Watchdog e deadline dei task
 - [ ] Overload shedding: scarto dei task non critici
 - [ ] Allarmi in stile `1201/1202`
@@ -114,7 +133,7 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 
 ### Definition of Done (Sprint 3)
 
-- Demo: sovraccarico iniettato, allarme, task scartati, atterraggio completato.
+- Demo: task che supera il budget iniettato, allarme `1201`, task non critici scartati, atterraggio completato entro i limiti di touchdown.
 - Ogni guasto di scenario ha un test automatico.
 
 **Qui il nucleo è completo.** Prima di proseguire: README con risultati e limiti.
@@ -167,4 +186,4 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 ### Sprint 0
 
 - Cosa è andato bene:
-- Cosa cambiare: l'ambito iniziale era troppo ampio; ridotto a un nucleo più due estensioni.
+- Cosa cambiare: l'ambito iniziale era troppo ampio; ridotto a un nucleo più due estensioni. Fissate subito le decisioni di base (numeri, tempo, dinamica, limiti) e diviso lo Sprint 2 in due.
