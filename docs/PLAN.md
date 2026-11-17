@@ -90,7 +90,7 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 | mul | 3,1 / 2,4  | 2,3 / 2,4  |
 | div | 12,9 / 10,9| 11,2 / 9,8 |
 
-Lettura: per add, sub e mul la differenza sta dentro il rumore tra un'esecuzione e l'altra; il costo è dominato dalla chiamata, non dall'aritmetica. La divisione è circa 4 volte più lenta per via di `idiv` a 64 bit, e lì il NASM risulta circa il 10% più veloce. Conclusione: il compilatore genera già codice quasi identico, scrivere a mano in assembly non porta vantaggi reali.
+Lettura: per add, sub e mul la differenza sta dentro il rumore tra un'esecuzione e l'altra; il costo è dominato dalla chiamata, non dall'aritmetica. La divisione è circa 4 volte più lenta per via di `idiv` a 64 bit, e lì il NASM risulta circa il 10% più veloce. Conclusione: il compilatore genera già codice quasi identico, scrivere a mano in assembly non porta vantaggi reali. **Il compilatore MSVC in Release genera già codice quasi identico al nostro assembly, perché queste funzioni sono semplici (estendi a 64 bit, opera, satura).**
 
 ### Definition of Done (Sprint 1)
 
