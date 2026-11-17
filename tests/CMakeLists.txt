@@ -1,0 +1,4 @@
+add_executable(test_fixed_point unit/test_fixed_point.c)
+target_include_directories(test_fixed_point PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(test_fixed_point PRIVATE eagle_fixed)
+add_test(NAME fixed_point COMMAND test_fixed_point)
