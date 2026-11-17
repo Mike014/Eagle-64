@@ -74,7 +74,7 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 - [x] Formato fixed-point Q16.16 documentato in `core/fixed/fixed_point.h`
 - [x] Framework di test: CTest con un mini-framework in C, senza dipendenze
 - [x] Implementazione di riferimento in C: somma, sottrazione, moltiplicazione, divisione con saturazione, con test
-- [ ] Stesse funzioni in NASM secondo la Windows x64 ABI
+- [x] Stesse funzioni in NASM secondo la Windows x64 ABI
 - [ ] Test differenziali C vs NASM con golden vector e casi limite (overflow, divisione per zero, valori minimi e massimi)
 - [ ] Benchmark C vs NASM (Release)
 - [ ] CI con GitHub Actions su Windows: build e test a ogni push

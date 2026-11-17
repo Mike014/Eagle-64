@@ -30,5 +30,10 @@ q32 q32_add(q32 a, q32 b);
 q32 q32_sub(q32 a, q32 b);
 q32 q32_mul(q32 a, q32 b);
 q32 q32_div(q32 a, q32 b);
+q32 q32_from_int_asm(int32_t x);
+q32 q32_add_asm(q32 a, q32 b);
+q32 q32_sub_asm(q32 a, q32 b);
+q32 q32_mul_asm(q32 a, q32 b);
+q32 q32_div_asm(q32 a, q32 b);
 
 #endif
