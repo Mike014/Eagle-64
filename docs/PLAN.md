@@ -75,9 +75,22 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 - [x] Framework di test: CTest con un mini-framework in C, senza dipendenze
 - [x] Implementazione di riferimento in C: somma, sottrazione, moltiplicazione, divisione con saturazione, con test
 - [x] Stesse funzioni in NASM secondo la Windows x64 ABI
-- [ ] Test differenziali C vs NASM con golden vector e casi limite (overflow, divisione per zero, valori minimi e massimi)
-- [ ] Benchmark C vs NASM (Release)
-- [ ] CI con GitHub Actions su Windows: build e test a ogni push
+- [x] Test differenziali C vs NASM con golden vector e casi limite (overflow, divisione per zero, valori minimi e massimi)
+- [x] Benchmark C vs NASM (Release)
+- [x] CI con GitHub Actions su Windows: build e test a ogni push
+
+### Risultati del benchmark
+
+`build/release/tests/bench_fixed_point.exe`, 20 milioni di chiamate per operazione, due esecuzioni sullo stesso PC (ns per chiamata):
+
+| Op  | C          | NASM       |
+|-----|------------|------------|
+| add | 2,8 / 2,9  | 3,3 / 2,2  |
+| sub | 3,0 / 2,4  | 3,0 / 2,0  |
+| mul | 3,1 / 2,4  | 2,3 / 2,4  |
+| div | 12,9 / 10,9| 11,2 / 9,8 |
+
+Lettura: per add, sub e mul la differenza sta dentro il rumore tra un'esecuzione e l'altra; il costo è dominato dalla chiamata, non dall'aritmetica. La divisione è circa 4 volte più lenta per via di `idiv` a 64 bit, e lì il NASM risulta circa il 10% più veloce. Conclusione: il compilatore genera già codice quasi identico, scrivere a mano in assembly non porta vantaggi reali.
 
 ### Definition of Done (Sprint 1)
 
@@ -187,3 +200,8 @@ Le cartelle indicate con uno sprint futuro non esistono ancora: nascono in quell
 
 - Cosa è andato bene:
 - Cosa cambiare: l'ambito iniziale era troppo ampio; ridotto a un nucleo più due estensioni. Fissate subito le decisioni di base (numeri, tempo, dinamica, limiti) e diviso lo Sprint 2 in due.
+
+### Sprint 1
+
+- Cosa è andato bene: la versione C di riferimento con i test, scritta per prima, ha dato un termine di confronto chiaro per il NASM. Il test differenziale (golden vector più 100.000 coppie da un seed fisso) controlla le due versioni bit per bit.
+- Cosa cambiare: una funzione NASM copiata male (add e mul mancanti, sub con il corpo della mul) compilava e passava `ctest`, perché nessun test la chiamava ancora. Le funzioni nuove vanno chiamate da almeno un test nello stesso commit in cui nascono.
