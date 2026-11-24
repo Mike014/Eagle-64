@@ -101,11 +101,11 @@ Lettura: per add, sub e mul la differenza sta dentro il rumore tra un'esecuzione
 
 **Obiettivo:** una discesa verticale simulata e registrata. Il lander non ha ancora una guida, quindi si schianta.
 
-- [ ] Modello fisico 1D: gravità lunare, massa, spinta, consumo di propellente (`sim/`)
-- [ ] Integratore numerico a passo fisso (tick da 10 ms)
-- [ ] Spinta costante da file di configurazione
-- [ ] Log della telemetria in CSV (tempo, quota, velocità, massa, spinta)
-- [ ] Seed e configurazione per replay identici
+- [x] Modello fisico 1D: gravità lunare, massa, spinta, consumo di propellente (`sim/`)
+- [x] Integratore numerico a passo fisso (tick da 10 ms)
+- [x] Spinta costante da file di configurazione
+- [x] Log della telemetria in CSV (tempo, quota, velocità, massa, spinta)
+- [x] Seed e configurazione per replay identici
 
 ### Definition of Done (Sprint 2a)
 
@@ -205,3 +205,8 @@ Lettura: per add, sub e mul la differenza sta dentro il rumore tra un'esecuzione
 
 - Cosa è andato bene: la versione C di riferimento con i test, scritta per prima, ha dato un termine di confronto chiaro per il NASM. Il test differenziale (golden vector più 100.000 coppie da un seed fisso) controlla le due versioni bit per bit.
 - Cosa cambiare: una funzione NASM copiata male (add e mul mancanti, sub con il corpo della mul) compilava e passava `ctest`, perché nessun test la chiamava ancora. Le funzioni nuove vanno chiamate da almeno un test nello stesso commit in cui nascono.
+
+### Sprint 2a
+
+- Cosa è andato bene: la Definition of Done è diventata due test automatici (`tests/unit/test_sim.cpp`): caduta libera da 100 m in 11,11 s come da formula, e CSV identico byte per byte su due esecuzioni. Il formato CSV è fissato con `fprintf` e file aperti in binario, così non dipende dal locale né dai fine riga di Windows.
+- Cosa cambiare: il seed è nel formato ma non è ancora usato; diventerà significativo con il rumore dei sensori (Sprint 3). Lo scenario a spinta costante mostra che senza guida il lander si schianta (18 m/s): è il punto di partenza dello Sprint 2b.

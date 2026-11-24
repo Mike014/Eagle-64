@@ -14,9 +14,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
     add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:/W4>
-                        $<$<COMPILE_LANGUAGE:C,CXX>:/WX>)
+                        $<$<COMPILE_LANGUAGE:C,CXX>:/WX>
+                        $<$<COMPILE_LANGUAGE:C,CXX>:/utf-8>)
 endif()
 
 add_subdirectory(core)
+add_subdirectory(sim)
 enable_testing()
 add_subdirectory(tests)
